@@ -7,6 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HelloController {
 
+    @GetMapping("/")
+    public String test() {
+        return "Hey!!";
+    }
+
     @GetMapping("/greet")
     public String greeting(@RequestParam(required = false, defaultValue = "") String name) {
         return name.equalsIgnoreCase("") ? "Hey" : String.format("Hey %s!", name);
