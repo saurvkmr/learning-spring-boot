@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
+import reactor.util.retry.Retry
 import java.lang.IllegalStateException
 import java.lang.RuntimeException
+import java.time.Duration
 
 class FluxMonoErrorTest {
 
@@ -72,6 +74,25 @@ class FluxMonoErrorTest {
             .expectError(java.lang.Exception::class.java)
             //.expectError(RuntimeException::class.java)
             .verify()
+    }
+    @Test
+    fun fluxOnErrorRetryWithBackOff() {
+        val flux = Flux.just("A", "B")
+            .concatWith(Flux.error(IllegalStateException("Illegal State")))
+            .concatWithValues("D")
+            .onErrorMap { Exception(it.message) }
+            .retryWhen(Retry.backoff(2, Duration.ofSeconds(2))) // retry works on parallel thread
+            //.subscribe()
+            //.blockFirst()
+
+        StepVerifier.create(flux.log())
+            .expectSubscription()
+            .expectNext("A", "B")
+            .expectNext("A", "B")
+            .expectNext("A", "B")
+            .expectError()
+            .verify()
+
     }
 
     @Test
