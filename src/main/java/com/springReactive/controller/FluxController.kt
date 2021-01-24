@@ -23,9 +23,8 @@ class FluxController {
     }
 
     @GetMapping("/rangeStream", produces = [MediaType.APPLICATION_NDJSON_VALUE])
-    fun getFluxWithIntervalStream(): Flux<Int> {
-        return Flux.range(0,10)
-            .delayElements(Duration.ofSeconds(1))
+    fun getFluxWithIntervalStream(): Flux<Long> {
+        return Flux.interval(Duration.ofSeconds(1))
             .log()
     }
 
