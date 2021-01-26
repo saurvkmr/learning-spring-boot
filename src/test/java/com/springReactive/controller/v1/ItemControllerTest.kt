@@ -2,6 +2,10 @@ package com.springReactive.controller.v1
 
 import com.springReactive.document.Item
 import com.springReactive.repo.ItemReactive
+import com.springReactive.util.ADD_ITEM
+import com.springReactive.util.ID_URI
+import com.springReactive.util.ITEMS_URI
+import com.springReactive.util.V1_URI
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -14,6 +18,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import java.util.*
 
@@ -47,7 +52,7 @@ class ItemControllerTest {
 
     @Test
     fun testAllItems() {
-        webTestClient.get().uri("/v1/items")
+        webTestClient.get().uri("$V1_URI$ITEMS_URI")
             .exchange()
             .expectStatus().isOk
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -57,7 +62,7 @@ class ItemControllerTest {
 
     @Test
     fun testAllItemsCheckId() {
-        webTestClient.get().uri("/v1/items")
+        webTestClient.get().uri("$V1_URI$ITEMS_URI")
             .exchange()
             .expectStatus().isOk
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -71,7 +76,7 @@ class ItemControllerTest {
 
     @Test
     fun testAllItemsUsingStepVerifier() {
-        val itemFlux : Flux<Item> = webTestClient.get().uri("/v1/items")
+        val itemFlux : Flux<Item> = webTestClient.get().uri("$V1_URI$ITEMS_URI")
             .exchange()
             .expectStatus().isOk
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -91,5 +96,74 @@ class ItemControllerTest {
             .expectSubscription()
             .expectNextCount(5)
             .verifyComplete()
+    }
+
+    @Test
+    fun getOneItemTest() {
+        val id = "47faa51c-f270-4564-a989-4300d5205c8d"
+        webTestClient.get().uri("$V1_URI$ID_URI", id)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.price", 98.9)
+    }
+
+    @Test
+    fun getOneItemTestNotFound() {
+        val id = "47faa51c-f270-4564-a989-4300d5205c8e"
+        webTestClient.get().uri("$V1_URI$ID_URI", id)
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody()
+    }
+
+    @Test
+    fun createTest() {
+        val item = Item(UUID.randomUUID(), "Macbook", 1999.0F)
+        webTestClient.post().uri("$V1_URI$ADD_ITEM")
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Mono.just(item), Item::class.java)
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody(Item::class.java)
+            .consumeWith<Nothing> { it.responseBody.price == 1999.0F }
+    }
+
+    @Test
+    fun createTest_2() {
+        val item = Item(UUID.randomUUID(), "Macbook", 1999.0F)
+        webTestClient.post().uri("$V1_URI$ADD_ITEM")
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Mono.just(item), Item::class.java)
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody()
+            .jsonPath("$.id").isNotEmpty
+            .jsonPath("$.desc").isEqualTo("Macbook")
+            .jsonPath("$.price").isEqualTo(1999.0F)
+    }
+
+    @Test
+    fun updateItem() {
+        val id = "47faa51c-f270-4564-a989-4300d5205c8d"
+        val item = Item(UUID.fromString("47faa51c-f270-4564-a989-4300d5205c8d"), "Airpod", 198.9F)
+        webTestClient.put().uri("$V1_URI$ID_URI", id)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Mono.just(item), Item::class.java)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.price").isEqualTo(198.9F)
+    }
+
+    @Test
+    fun updateItem_NotFound() {
+        val id = "47faa51c-f270-4564-a989-4300d5205c8e"
+        val item = Item(UUID.fromString("47faa51c-f270-4564-a989-4300d5205c8d"), "Airpod", 198.9F)
+        webTestClient.put().uri("$V1_URI$ID_URI", id)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Mono.just(item), Item::class.java)
+            .exchange()
+            .expectStatus().isNotFound
     }
 }

@@ -2,8 +2,6 @@ package funWithFluxMono;
 
 import reactor.core.publisher.Flux;
 
-import java.util.function.Supplier;
-
 public class Test {
 
     public void zipTogether() {
