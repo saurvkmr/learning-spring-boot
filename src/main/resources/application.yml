@@ -1,6 +1,9 @@
+#spring.config.activate.on-profile
 spring:
-  profiles:
-    active: dev
+  config:
+    activate:
+      on-profiles:
+        active: dev
 ---
 spring:
   profiles: dev
