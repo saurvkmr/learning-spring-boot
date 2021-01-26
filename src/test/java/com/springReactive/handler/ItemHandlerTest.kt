@@ -2,6 +2,7 @@ package com.springReactive.handler
 
 import com.springReactive.document.Item
 import com.springReactive.repo.ItemReactive
+import com.springReactive.util.ADD_ITEM
 import com.springReactive.util.FUNCTIONAL
 import com.springReactive.util.ID_URI
 import com.springReactive.util.ITEMS_URI
@@ -17,6 +18,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import java.util.*
 
@@ -121,6 +123,18 @@ class ItemHandlerTest {
             .exchange()
             .expectBody()
             .isEmpty
-            //.expectStatus().isNotFound
+        //.expectStatus().isNotFound
+    }
+
+    @Test
+    fun createItemTest() {
+        val item = Item(UUID.randomUUID(), "Tesla Car", 64.5F)
+        webTestClient.post().uri("$FUNCTIONAL$ADD_ITEM")
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Mono.just(item), Item::class.java)
+            .exchange()
+            .expectStatus().isAccepted
+            .expectBody(Item::class.java)
+            .value<Nothing> { it.price == 64.5F }
     }
 }

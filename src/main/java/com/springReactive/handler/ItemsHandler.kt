@@ -23,11 +23,21 @@ class ItemsHandler {
             .body(itemReactive.findAll(), Item::class.java)
     }
 
-    fun getItem(request: ServerRequest) : Mono<ServerResponse> {
+    fun getItem(request: ServerRequest): Mono<ServerResponse> {
         val id = UUID.fromString(request.pathVariable("id"))
         return ServerResponse.ok()
             .contentType(MediaType.APPLICATION_JSON)
             .body(itemReactive.findById(id), Item::class.java) // this is returning empty body
             .switchIfEmpty(notFound)
+    }
+
+    fun createItem(request: ServerRequest): Mono<ServerResponse> {
+        val itemMono = request.bodyToMono(Item::class.java)
+
+        return itemMono.flatMap {
+            ServerResponse.accepted()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(itemReactive.save(it), Item::class.java)
+        }
     }
 }
