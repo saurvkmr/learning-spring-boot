@@ -4,11 +4,13 @@ import com.springReactive.document.Item
 import com.springReactive.repo.ItemReactive
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.CommandLineRunner
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import java.util.*
 
 @Component
+@Profile("dev")
 class ItemInitializer : CommandLineRunner {
     @Autowired
     lateinit var itemReactive: ItemReactive

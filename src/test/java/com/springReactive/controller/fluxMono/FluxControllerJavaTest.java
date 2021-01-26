@@ -1,4 +1,4 @@
-package com.springReactive.controller;
+package com.springReactive.controller.fluxMono;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
