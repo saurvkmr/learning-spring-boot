@@ -2,10 +2,7 @@ package com.springReactive.handler
 
 import com.springReactive.document.Item
 import com.springReactive.repo.ItemReactive
-import com.springReactive.util.ADD_ITEM
-import com.springReactive.util.FUNCTIONAL
-import com.springReactive.util.ID_URI
-import com.springReactive.util.ITEMS_URI
+import com.springReactive.util.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -136,5 +133,19 @@ class ItemHandlerTest {
             .expectStatus().isAccepted
             .expectBody(Item::class.java)
             .value<Nothing> { it.price == 64.5F }
+    }
+
+    @Test
+    fun deleteItem() {
+        val id = "47faa51c-f270-4564-a989-4300d5205c8d"
+        webTestClient.delete().uri("$FUNCTIONAL$DELETE_ITEM$ID_URI", id)
+            .exchange()
+            .expectStatus().isOk
+
+        webTestClient.get().uri("$FUNCTIONAL$ITEMS_URI")
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList(Item::class.java)
+            .hasSize(items().size - 1)
     }
 }

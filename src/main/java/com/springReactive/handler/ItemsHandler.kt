@@ -33,11 +33,39 @@ class ItemsHandler {
 
     fun createItem(request: ServerRequest): Mono<ServerResponse> {
         val itemMono = request.bodyToMono(Item::class.java)
-
         return itemMono.flatMap {
             ServerResponse.accepted()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(itemReactive.save(it), Item::class.java)
+        }
+    }
+
+    fun deleteItem(request: ServerRequest): Mono<ServerResponse> {
+        val id = UUID.fromString(request.pathVariable("id"))
+        return ServerResponse.ok()
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(itemReactive.deleteById(id), Void::class.java)
+            .switchIfEmpty(notFound)
+    }
+
+    fun updateItem(request: ServerRequest): Mono<ServerResponse> {
+        val id = request.pathVariable("id")
+        val updatedItem: Mono<Item> = request.bodyToMono(Item::class.java)
+            .flatMap {
+                return@flatMap itemReactive.findById(UUID.fromString(id))
+                    .flatMap { item ->
+                        run {
+                            item.price = it.price
+                            item.desc = it.desc
+                        }
+                        return@flatMap itemReactive.save(item)
+                    }
+            }
+        return updatedItem.flatMap {
+            ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(it, Item::class.java)
+                .switchIfEmpty(notFound)
         }
     }
 }
