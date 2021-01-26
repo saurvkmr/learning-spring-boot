@@ -3,6 +3,7 @@ package com.springReactive.handler
 import com.springReactive.document.Item
 import com.springReactive.repo.ItemReactive
 import com.springReactive.util.FUNCTIONAL
+import com.springReactive.util.ID_URI
 import com.springReactive.util.ITEMS_URI
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
@@ -87,5 +88,39 @@ class ItemHandlerTest {
             .expectSubscription()
             .expectNextCount(5)
             .verifyComplete()
+    }
+
+    @Test
+    fun getOneItem() {
+        val id = "47faa51c-f270-4564-a989-4300d5205c8d"
+        webTestClient.get().uri("$FUNCTIONAL$ID_URI", id)
+            .exchange()
+            .expectHeader()
+            .contentType(MediaType.APPLICATION_JSON)
+            .expectStatus().isOk
+            .expectBodyList(Item::class.java)
+            .hasSize(1)
+    }
+
+    @Test
+    fun getOneItemValidatePrice() {
+        val id = "47faa51c-f270-4564-a989-4300d5205c8d"
+        webTestClient.get().uri("$FUNCTIONAL$ID_URI", id)
+            .exchange()
+            .expectHeader()
+            .contentType(MediaType.APPLICATION_JSON)
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.price", 98.9F)
+    }
+
+    @Test
+    fun getOneItemValidateNotFound() {
+        val id = "47faa51c-f270-4564-a989-4300d5205c8e"
+        webTestClient.get().uri("$FUNCTIONAL$ID_URI", id)
+            .exchange()
+            .expectBody()
+            .isEmpty
+            //.expectStatus().isNotFound
     }
 }

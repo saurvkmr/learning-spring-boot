@@ -2,6 +2,7 @@ package com.springReactive.router
 
 import com.springReactive.handler.ItemsHandler
 import com.springReactive.util.FUNCTIONAL
+import com.springReactive.util.ID_URI
 import com.springReactive.util.ITEMS_URI
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -20,5 +21,6 @@ open class ItemsRouter {
         return RouterFunctions
             .route(GET("$FUNCTIONAL$ITEMS_URI")
                 .and(accept(MediaType.APPLICATION_JSON)), itemsHandler::getAllItems)
+            .andRoute(GET("$FUNCTIONAL$ID_URI").and(accept(MediaType.APPLICATION_JSON)), itemsHandler::getItem)
     }
 }
