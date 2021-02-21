@@ -1,4 +1,4 @@
-package funWithFluxMono;
+package funWithFluxMono.test;
 
 import reactor.core.publisher.Flux;
 

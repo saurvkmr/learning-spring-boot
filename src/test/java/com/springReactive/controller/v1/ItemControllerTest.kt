@@ -166,4 +166,13 @@ class ItemControllerTest {
             .exchange()
             .expectStatus().isNotFound
     }
+
+    @Test
+    fun exceptionHandlerTest() {
+        webTestClient.get().uri("$V1_URI$ITEMS_URI/exception")
+            .exchange()
+            .expectStatus().is5xxServerError
+            .expectBody(String::class.java)
+            .isEqualTo<Nothing>("Forced Exception")
+    }
 }

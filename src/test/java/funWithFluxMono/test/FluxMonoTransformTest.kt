@@ -1,4 +1,4 @@
-package funWithFluxMono
+package funWithFluxMono.test
 
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
